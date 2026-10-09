@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>English Games 🇬🇧</title>
+<style>
+  :root {
+    font-family: "Comic Sans MS", "Segoe UI", system-ui, sans-serif;
+    --btn-padding: 12px 28px;
+    --btn-font-size: 1.2rem;
+    --btn-border-radius: 999px;
+    --card-shadow: 0 6px 0 #c9c9d6;
+    --card-border-radius: 18px;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    max-width: 100vw;
+    overflow-x: hidden;
+    background: linear-gradient(160deg, #a8e6ff 0%, #ffd6f5 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    color: #ff5e8a;
+    text-shadow: 2px 2px 0 #fff;
+    font-size: 2rem;
+    margin: 8px 0 4px;
+    white-space: nowrap;
+  }
+
+  #status {
+    color: #3b6ea5;
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .screen:not(.active) {
+    display: none !important;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  #home .menu {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .menu-btn {
+    width: 240px;
+    padding: 28px 16px;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 8px 0 #c9c9d6;
+    font-family: inherit;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #5a3ec8;
+    transition: background .2s ease;
+  }
+
+  .menu-btn .big {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .menu-btn.pink {
+    color: #d13c66;
+    box-shadow: 0 8px 0 #f0b9cc;
+  }
+
+  .menu-btn:hover {
+    background: #fffbe8;
+  }
+
+  .levels {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .lvl-btn {
+    width: 160px;
+    padding: 20px 12px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    background: #fff;
+    box-shadow: 0 6px 0 #c9c9d6;
+    font-family: inherit;
+    color: #5a3ec8;
+    text-align: center;
+  }
+
+  .lvl-btn .lvl-emoji {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .lvl-btn .lvl-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: block;
+  }
+
+  .lvl-btn .lvl-desc {
+    font-size: .85rem;
+    color: #888;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .lvl-btn:hover {
+    background: #fffbe8;
+  }
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 kolumny */
+  gap: 5.26%; /* gap = card/4 */
+  width: 100%;
+  max-width: 520px;
+}
+
+  #bingoBoard {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .card {
+    background: #fff;
+    border: none;
+    border-radius: var(--card-border-radius);
+    aspect-ratio: 1;
+    width: 100%;
+    font-size: clamp(2rem, 6vh, 3rem);
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+    transition: background .2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    transform: none !important;
+  }
+
+  .card.down {
+    background: #7c5cff;
+    color: #fff;
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  .card.down::after {
+    content: "❓";
+  }
+
+  .card.down span {
+    display: none;
+  }
+
+  .card span {
+    display: block;
+  }
+
+  .card.matched {
+    background: #b9ffd8;
+    cursor: default;
+    box-shadow: 0 6px 0 #8fe6bd;
+  }
+
+  .bcard {
+    font-size: clamp(2.2rem, 9vw, 3.4rem);
+  }
+
+  .bcard.marked {
+    background: #ffe9a8;
+    cursor: default;
+    box-shadow: 0 6px 0 #e6c96a;
+  }
+
+  #msg, #msg-mem, #msg-bingo {
+    margin-top: 16px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #ff5e8a;
+    min-height: 2.4rem;
+    text-align: center;
+  }
+
+  .row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: var(--btn-padding);
+    font-size: var(--btn-font-size);
+    font-weight: bold;
+    font-family: inherit;
+    color: #fff;
+    background: #ff5e8a;
+    border: none;
+    border-radius: var(--btn-border-radius);
+    cursor: pointer;
+    box-shadow: 0 5px 0 #d13c66;
+    white-space: nowrap;
+  }
+
+  .btn.blue {
+    background: #3b6ea5;
+    box-shadow: 0 5px 0 #2c537d;
+  }
+
+  @media (orientation: landscape) {
+    body {
+      justify-content: center;
+      max-height: 100vh;
+    }
+
+    #home.active, #memory-levels.active, #bingo-levels.active {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      max-width: 100%;
+      width: auto;
+    }
+
+    /* Poziomy gier: przyciski poziomów w rzędzie */
+    #memory-levels.active .levels,
+    #bingo-levels.active .levels {
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 100%;
+      justify-content: center;
+      margin-top: 0;
+    }
+    #memory-levels.active .lvl-btn,
+    #bingo-levels.active .lvl-btn {
+      width: 120px;
+      padding: 12px 8px;
+      font-size: 1rem;
+    }
+    #memory-levels.active .lvl-emoji,
+    #bingo-levels.active .lvl-emoji {
+      font-size: 1.8rem;
+    }
+    #memory-levels.active .lvl-name,
+    #bingo-levels.active .lvl-name {
+      font-size: 1rem;
+    }
+
+    /* Gry Memory i Bingo - układ grid z panel bocznym i planszą */
+    #memory.active, #bingo.active {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 24px;
+      align-items: start;
+      width: 100%;
+      max-width: 100%;
+      max-height: 100vh;
+    }
+
+    #memory.active .side, #bingo.active .side {
+      grid-column: 1;
+      width: auto;
+      margin-bottom: 0;
+      align-self: start;
+    }
+
+    #board {
+      grid-column: 2;
+      width: 100%;
+    }
+
+    #bingoBoard {
+      grid-column: 2;
+      max-width: min(350px, 45vw);
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0;
+    }
+
+    #msg, #msg-mem, #msg-bingo {
+      font-size: 1.2rem;
+      min-height: 1.2rem;
+      margin-top: 0;
+    }
+
+    .row {
+      margin-top: 0;
+    }
+
+    .menu {
+      flex-direction: column;
+      margin-top: 0;
+      gap: 14px;
+    }
+
+    .menu-btn {
+      width: 200px;
+      padding: 16px;
+      font-size: 1.1rem;
+    }
+
+    .menu-btn .big {
+      font-size: 2.4rem;
+      margin-bottom: 4px;
+    }
+  }
+
+  :fullscreen body {
+    padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  }
+
+  :fullscreen #board,
+  :fullscreen #bingoBoard {
+    max-width: min(520px, 92vh);
+    max-height: min(520px, 92vh);
+  }
+
+  .screen {
+    max-width: 100%;
+  }
+
+  #home {
+    max-width: 100%;
+  }
+
+  .menu {
+    max-width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ EKRAN GŁÓWNY ============ -->
+<div id="home" class="screen active">
+  <div class="side">
+    <h1>English Games 🇬🇧</h1>
+    <div id="status">Choose a game!</div>
+  </div>
+  <div class="menu">
+    <button class="menu-btn" onclick="showScreen('memory-levels')">
+      <span class="big">🎴🎴</span>Memory
+    </button>
+    <button class="menu-btn pink" onclick="showScreen('bingo-levels')">
+      <span class="big">🎯</span>Bingo
+    </button>
+  </div>
+</div>
+
+<!-- ============ WYBÓR POZIOMU MEMORY ============ -->
+<div id="memory-levels" class="screen">
+  <div class="side">
+    <h1>Memory 🎴🎴</h1>
+    <div id="status">Choose a level!</div>
+  </div>
+  <div class="levels">
+    <button class="lvl-btn" onclick="startMemory(1)">
+      <span class="lvl-emoji">🥉</span><span class="lvl-name">Level 1</span><span class="lvl-desc">4 pairs</span>
+    </button>
+    <button class="lvl-btn" onclick="startMemory(2)">
+      <span class="lvl-emoji">🥈</span><span class="lvl-name">Level 2</span><span class="lvl-desc">6 pairs</span>
+    </button>
+    <button class="lvl-btn" onclick="startMemory(3)">
+      <span class="lvl-emoji">🥇</span><span class="lvl-name">Level 3</span><span class="lvl-desc">8 pairs</span>
+    </button>
+    <button class="lvl-btn" onclick="startMemory(4)">
+      <span class="lvl-emoji">🏅</span><span class="lvl-name">Level 4</span><span class="lvl-desc">10 pairs</span>
+    </button>
+  </div>
+  <div class="row">
+    <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
+  </div>
+</div>
+
+<!-- ============ WYBÓR POZIOMU BINGO ============ -->
+<div id="bingo-levels" class="screen">
+  <div class="side">
+    <h1>Bingo 🎯</h1>
+    <div id="status">Choose a level!</div>
+  </div>
+  <div class="levels">
+    <button class="lvl-btn" onclick="startBingo(1)">
+      <span class="lvl-emoji">🥉</span><span class="lvl-name">Level 1</span><span class="lvl-desc">2 × 2</span>
+    </button>
+    <button class="lvl-btn" onclick="startBingo(2)">
+      <span class="lvl-emoji">🥈</span><span class="lvl-name">Level 2</span><span class="lvl-desc">3 × 3</span>
+    </button>
+    <button class="lvl-btn" onclick="startBingo(3)">
+      <span class="lvl-emoji">🥇</span><span class="lvl-name">Level 3</span><span class="lvl-desc">4 × 4</span>
+    </button>
+    <button class="lvl-btn" onclick="startBingo(4)">
+      <span class="lvl-emoji">🏅</span><span class="lvl-name">Level 4</span><span class="lvl-desc">5 × 5</span>
+    </button>
+  </div>
+  <div class="row">
+    <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
+  </div>
+</div>
+
+<!-- ============ MEMORY ============ -->
+<div id="memory" class="screen">
+  <div class="side">
+    <h1>Memory 🎴🎴</h1>
+    <div id="status-mem">Let's play!</div>
+    <div id="msg-mem"></div>
+    <div class="row">
+      <button class="btn" id="again" onclick="newGame()">Play again! 🔁</button>
+      <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
+      <button class="btn blue" onclick="toggleFullscreen()">⛶</button>
+    </div>
+  </div>
+  <div id="board"></div>
+</div>
+
+<!-- ============ BINGO ============ -->
+<div id="bingo" class="screen">
+  <div class="side">
+    <h1>Bingo 🎯</h1>
+    <div id="status-bingo">Listen and find the picture!</div>
+    <div id="msg-bingo"></div>
+    <div class="row">
+      <button class="btn" id="listenBtn" onclick="repeatWord()">🔊 Listen again</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="bingoAgain" onclick="newBingo()">Play again! 🔁</button>
+      <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
+      <button class="btn blue" onclick="toggleFullscreen()">⛶</button>
+    </div>
+  </div>
+  <div id="bingoBoard"></div>
+</div>
+
+<script>
+// Angielskie słówka dla przedszkolaka: emoji + słowo + pełne zdanie
+// 👉 TU możesz zmieniać listę słów w talii!
+// "say" to całe zdanie, które dziecko usłyszy przy odkryciu karty.
+const WORDS = [
+{ emoji: "🎈", word: "balloon", say: "It's a balloon" },
+{ emoji: "🦉", word: "owl", say: "It's an owl" },
+{ emoji: "👶", word: "baby", say: "It's a baby" },
+{ emoji: "👓", word: "glasses", say: "They are glasses" },
+{ emoji: "⌚", word: "watch", say: "It's a watch" },
+{ emoji: "🧸", word: "mascot", say: "It's a mascot" },
+{ emoji: "🛞", word: "wheel", say: "It's a wheel" },
+{ emoji: "🎹", word: "piano", say: "It's a piano" },
+{ emoji: "🪞", word: "mirror", say: "It's a mirror" },
+{ emoji: "🔪", word: "knife", say: "It's a knife" },
+{ emoji: "🏪", word: "shop", say: "It's a shop" },
+{ emoji: "🎸", word: "guitar", say: "It's a guitar" },
+{ emoji: "🚰", word: "tap", say: "It's a tap" },
+{ emoji: "❄️", word: "snow", say: "It's snow" },
+{ emoji: "🔥", word: "fire", say: "It's fire" },
+{ emoji: "🐇", word: "rabbit", say: "It's a rabbit" },
+{ emoji: "🌍", word: "earth", say: "It's the earth" },
+{ emoji: "🎺", word: "trumpet", say: "It's a trumpet" },
+{ emoji: "🪛", word: "screwdriver", say: "It's a screwdriver" },
+{ emoji: "🏝️", word: "island", say: "It's an island" },
+{ emoji: "🪲", word: "beetle", say: "It's a beetle" },
+{ emoji: "🪺", word: "nest", say: "It's a nest" },
+{ emoji: "👮", word: "police officer", say: "It's a police officer" },
+{ emoji: "🛝", word: "slide", say: "It's a slide" },
+{ emoji: "🦈", word: "shark", say: "It's a shark" },
+{ emoji: "🦊", word: "fox", say: "It's a fox" },
+{ emoji: "☕", word: "mug", say: "It's a mug" },
+{ emoji: "🪼", word: "jellyfish", say: "It's a jellyfish" },
+{ emoji: "🪜", word: "ladder", say: "It's a ladder" },
+{ emoji: "💧", word: "water", say: "It's water" },
+{ emoji: "🎄", word: "christmas tree", say: "It's a christmas tree" },
+{ emoji: "🥁", word: "drum", say: "It's a drum" },
+{ emoji: "📦", word: "box", say: "It's a box" },
+{ emoji: "🗑️", word: "bin", say: "It's a bin" },
+{ emoji: "🏠", word: "house", say: "It's a house" },
+{ emoji: "🍃", word: "leaf", say: "It's a leaf" },
+{ emoji: "🐦", word: "bird", say: "It's a bird" },
+{ emoji: "🍬", word: "sweet", say: "It's a sweet" },
+{ emoji: "☀️", word: "sun", say: "It's the sun" },
+{ emoji: "🪥", word: "toothbrush", say: "It's a toothbrush" },
+{ emoji: "🥄", word: "spoon", say: "It's a spoon" },
+{ emoji: "👻", word: "ghost", say: "It's a ghost" },
+{ emoji: "🍽️", word: "plate", say: "It's a plate" },
+{ emoji: "💵", word: "money", say: "It's money" },
+{ emoji: "🚦", word: "traffic lights", say: "They are traffic lights" },
+{ emoji: "📷", word: "camera", say: "It's a camera" },
+{ emoji: "🚽", word: "toilet", say: "It's a toilet" },
+{ emoji: "⛄", word: "snowman", say: "It's a snowman" },
+{ emoji: "🌸", word: "flower", say: "It's a flower" },
+{ emoji: "✈️", word: "plane", say: "It's a plane" },
+{ emoji: "🛁", word: "bath", say: "It's a bath" },
+{ emoji: "🦷", word: "tooth", say: "It's a tooth" },
+{ emoji: "🍴", word: "fork", say: "It's a fork" },
+{ emoji: "☂️", word: "umbrella", say: "It's an umbrella" },
+{ emoji: "🐒", word: "monkey", say: "It's a monkey" },
+{ emoji: "🔺", word: "triangle", say: "It's a triangle" },
+{ emoji: "🌈", word: "rainbow", say: "It's a rainbow" },
+{ emoji: "🔑", word: "key", say: "It's a key" },
+{ emoji: "✂️", word: "scissors", say: "They are scissors" },
+{ emoji: "🐖", word: "pig", say: "It's a pig" },
+{ emoji: "⛰️", word: "mountain", say: "It's a mountain" },
+{ emoji: "🌊", word: "sea", say: "It's the sea" },
+{ emoji: "🗡️", word: "sword", say: "It's a sword" },
+{ emoji: "💍", word: "ring", say: "It's a ring" },
+{ emoji: "🚗", word: "car", say: "It's a car" },
+{ emoji: "🚚", word: "lorry", say: "It's a lorry" },
+{ emoji: "🚲", word: "bike", say: "It's a bike" },
+{ emoji: "⚽", word: "ball", say: "It's a ball" },
+{ emoji: "🐄", word: "cow", say: "It's a cow" },
+{ emoji: "✏️", word: "pencil", say: "It's a pencil" },
+{ emoji: "🍞", word: "bread", say: "It's bread" },
+{ emoji: "🥚", word: "egg", say: "It's an egg" },
+{ emoji: "🛋️", word: "sofa", say: "It's a sofa" },
+{ emoji: "🪑", word: "chair", say: "It's a chair" },
+{ emoji: "🥕", word: "carrot", say: "It's a carrot" },
+{ emoji: "👟", word: "shoes", say: "They are shoes" },
+{ emoji: "👕", word: "T-shirt", say: "It's a T-shirt" },
+{ emoji: "👖", word: "trousers", say: "They are trousers" },
+{ emoji: "🟥", word: "red", say: "It's red" },
+{ emoji: "🟦", word: "blue", say: "It's blue" },
+{ emoji: "🟨", word: "yellow", say: "It's yellow" },
+{ emoji: "🟩", word: "green", say: "It's green" },
+{ emoji: "🟧", word: "orange", say: "It's orange" },
+{ emoji: "⬛", word: "black", say: "It's black" },
+{ emoji: "⬜", word: "white", say: "It's white" },
+{ emoji: "🟫", word: "brown", say: "It's brown" },
+{ emoji: "🟪", word: "purple", say: "It's purple" },
+{ emoji: "🍌", word: "banana", say: "It's a banana" },
+{ emoji: "♥️", word: "heart", say: "It's a heart" },
+{ emoji: "🍫", word: "chocolate", say: "It's chocolate" },
+{ emoji: "🐕", word: "dog", say: "It's a dog" },
+{ emoji: "🐈", word: "cat", say: "It's a cat" },
+{ emoji: "🍅", word: "tomato", say: "It's a tomato" },
+{ emoji: "🍄", word: "mushroom", say: "It's a mushroom" }
+];
+
+// ============ PRZEŁĄCZANIE EKRANÓW ============
+function showScreen(name) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(name).classList.add("active");
+}
+
+// poziomy trudności: liczba par / rozmiar planszy
+const MEM_LEVELS = { 1: 4, 2: 6, 3: 8, 4: 10 };
+const BINGO_LEVELS = { 1: 2, 2: 3, 3: 4, 4: 5 };
+let memPairs = 4;
+let bingoSize = 3;
+let currentMemoryLevel = 1;
+
+// Rozmiany kart w % wysokości ekranu dla każdego poziomu Memory
+const MEMORY_CARD_SIZES = {
+  1: { cols: 4, card: '21.05%', gap: '5.26%' },
+  2: { cols: 4, card: '21.05%', gap: '5.26%' },
+  3: { cols: 4, card: '21.05%', gap: '5.26%' },
+  4: { cols: 5, card: '16.67%', gap: '4.17%' } // 5 kolumn: 5×16.67% + 4×4.17% = 100%
+};
+
+function startMemory(level) {
+  currentMemoryLevel = level;
+  memPairs = MEM_LEVELS[level];
+  showScreen("memory");
+  newGame();
+}
+
+function startBingo(level) {
+  bingoSize = BINGO_LEVELS[level];
+  showScreen("bingo");
+  newBingo();
+}
+
+// ============ MÓWIENIE I DŹWIĘK (wspólne) ============
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "en-US";
+  u.rate = 0.85;
+  u.pitch = 1;
+  const voice = speechSynthesis.getVoices().find(v => v.lang.startsWith("en"));
+  if (voice) u.voice = voice;
+  speechSynthesis.speak(u);
+}
+
+function chime() {
+  try {
+    const ctx = chime.ctx || (chime.ctx = new (window.AudioContext || window.webkitAudioContext)());
+    [523.25, 659.25, 783.99].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.12);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.4);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + i * 0.12); o.stop(ctx.currentTime + i * 0.12 + 0.4);
+    });
+  } catch (e) {}
+}
+
+// ============ MEMORY ============
+const board = document.getElementById("board");
+const movesEl = document.getElementById("status-mem");
+const msgEl = document.getElementById("msg-mem");
+const againBtn = document.getElementById("again");
+
+let first = null, lock = false, moves = 0, matchedCount = 0;
+
+function newGame() {
+  first = null;
+  lock = false;
+  moves = 0;
+  matchedCount = 0;
+
+  movesEl.textContent = "Find a pair and listen.";
+  msgEl.textContent = "";
+  againBtn.style.display = "none";
+  board.innerHTML = "";
+
+  const sizes = MEMORY_CARD_SIZES[currentMemoryLevel];
+  const cardSize = sizes.card;
+  const gapSize = sizes.gap;
+
+  const selectedWords = [...WORDS]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, memPairs);
+
+  const deck = [...selectedWords, ...selectedWords]
+    .map((c, i) => ({ ...c, id: i }))
+    .sort(() => Math.random() - 0.5);
+
+  const rows = memPairs / 2;
+  board.style.gridTemplateColumns = `repeat(${sizes.cols}, ${sizes.card})`;
+  board.style.gap = sizes.gap;
+  board.style.gap = gapSize;
+
+  deck.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "card down";
+    b.innerHTML = "<span>" + c.emoji + "</span>";
+    b.onclick = () => flip(b, c);
+    board.appendChild(b);
+  });
+}
+
+function flip(el, cardData) {
+  if (lock || el.classList.contains("matched") || el.classList.contains("down") === false) return;
+
+  el.classList.remove("down");
+  speak(cardData.say);
+
+  if (!first) { first = { el, cardData }; return; }
+
+  moves++;
+  movesEl.textContent = "Moves: " + moves;
+
+  if (first.cardData.word === cardData.word) {
+    first.el.classList.add("matched"); el.classList.add("matched");
+    msgEl.textContent = "Well done! " + first.cardData.say + "! 🎉";
+    speak("Well done, " + cardData.say + "!");
+    chime();
+    const a = first.el, b = el;
+    setTimeout(() => {
+      a.style.transition = "opacity .5s ease";
+      b.style.transition = "opacity .5s ease";
+      a.style.opacity = "0";
+      b.style.opacity = "0";
+      setTimeout(() => {
+        a.style.visibility = "hidden"; b.style.visibility = "hidden";
+        a.style.pointerEvents = "none"; b.style.pointerEvents = "none";
+      }, 500);
+    }, 1200);
+    first = null;
+    matchedCount++;
+    if (matchedCount === memPairs) {
+      msgEl.textContent = "You won! 🏆 Brawo!";
+      speak("You won, great job!");
+      againBtn.style.display = "inline-block";
+    }
+  } else {
+    lock = true;
+    const a = first.el;
+    first = null;
+    setTimeout(() => { a.classList.add("down"); el.classList.add("down"); lock = false; }, 1100);
+  }
+}
+
+// ============ BINGO ============
+const bingoBoard = document.getElementById("bingoBoard");
+const bingoStatus = document.getElementById("status-bingo");
+const bingoMsg = document.getElementById("msg-bingo");
+const bingoAgain = document.getElementById("bingoAgain");
+const listenBtn = document.getElementById("listenBtn");
+
+let bingoCards = [];
+let currentWord = null;
+let bingoLock = false;
+let markedCount = 0;
+
+// Funkcja do generowania zaprzeczeń
+function notFor(c) {
+  if (c.say.indexOf("They are") === 0) return "They are not the " + c.word;
+  if (/^It's (a|an|the) /.test(c.say)) return "It's not the " + c.word;
+  return "It's not " + c.word;
+}
+
+function newBingo() {
+  bingoAgain.style.display = "none";
+  bingoMsg.textContent = "";
+  bingoLock = false;
+  markedCount = 0;
+
+  const count = bingoSize * bingoSize;
+  bingoCards = [...WORDS].sort(() => Math.random() - 0.5).slice(0, count);
+  bingoCards.forEach(c => c.done = false);
+
+  bingoBoard.innerHTML = "";
+  bingoBoard.style.gridTemplateColumns = "repeat(" + bingoSize + ", 1fr)";
+  bingoCards.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "card bcard";
+    b.innerHTML = "<span>" + c.emoji + "</span>";
+    b.onclick = () => bingoPick(b, c);
+    bingoBoard.appendChild(b);
+  });
+
+  nextBingoWord();
+}
+
+function questionFor(c) {
+  if (c.say.indexOf("They are") === 0) return "Where are the " + c.word + "?";
+  if (/^It's (a|an|the) /.test(c.say)) return "Where is the " + c.word + "?";
+  return "Where is " + c.word + "?";
+}
+
+function nextBingoWord() {
+  const left = bingoCards.filter(c => !c.done);
+  if (left.length === 0) return bingoWin();
+  currentWord = left[Math.floor(Math.random() * left.length)];
+  bingoStatus.textContent = "Listen and find the picture! 👂";
+  setTimeout(() => speak(questionFor(currentWord)), 600);
+}
+
+function repeatWord() {
+  if (currentWord) speak(questionFor(currentWord));
+}
+
+function bingoPick(el, cardData) {
+  if (bingoLock || cardData.done) return;
+
+  if (cardData.word === currentWord.word) {
+    cardData.done = true;
+    el.classList.add("marked");
+    chime();
+    markedCount++;
+
+    bingoMsg.textContent = "Yes! " + cardData.say + "! 🎉";
+    speak("Yes, " + cardData.say + "!");
+
+    if (markedCount === bingoCards.length) {
+      bingoWin();
+    } else {
+      setTimeout(nextBingoWord, 1800);
+    }
+  } else {
+    bingoMsg.textContent = "Try again! ❌";
+    if (currentWord) speak(notFor(currentWord));
+  }
+}
+
+function bingoWin() {
+  bingoStatus.textContent = "";
+  bingoMsg.textContent = "BINGO! You won! 🏆";
+  speak("Bingo, you won, great job!");
+  chime();
+  bingoAgain.style.display = "inline-block";
+  bingoLock = true;
+}
+
+// ============ PEŁNY EKRAN ============
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const fn = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (fn) fn.call(el).catch(() => {});
+  } else {
+    const fn = document.exitFullscreen || document.webkitExitFullscreen;
+    if (fn) fn.call(document).catch(() => {});
+  }
+}
+
+// ============ START ============
+if ("speechSynthesis" in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
