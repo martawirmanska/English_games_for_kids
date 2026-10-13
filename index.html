@@ -162,7 +162,7 @@
 
   #bingoBoard {
     display: grid;
-    gap: 12px;
+    gap: 6px;
     width: 100%;
     max-width: 480px;
   }
@@ -213,7 +213,7 @@
   }
 
   .bcard {
-    font-size: clamp(2.2rem, 9vw, 3.4rem);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
   }
 
   .bcard.marked {
@@ -759,6 +759,7 @@ function newBingo() {
   markedCount = 0;
 
   const count = bingoSize * bingoSize;
+
   bingoCards = [...WORDS].sort(() => Math.random() - 0.5).slice(0, count);
   bingoCards.forEach(c => c.done = false);
 
