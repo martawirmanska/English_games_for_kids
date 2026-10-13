@@ -323,7 +323,6 @@
 
     #bingoBoard {
       grid-column: 2;
-      height: 100vh-24px;
     }
 
     h1 {
@@ -367,7 +366,7 @@
   :fullscreen #bingoBoard {
     max-width: min(520px, 92vh);
     max-height: min(520px, 92vh);
-  }
+    }
 
   .screen {
     max-width: 100%;
@@ -389,6 +388,7 @@
   <div class="side">
     <h1>English Games 🇬🇧</h1>
     <div id="status">Choose a game!</div>
+    <button class="btn blue" onclick="toggleFullscreen()">⛶</button>
   </div>
   <div class="menu">
     <button class="menu-btn" onclick="showScreen('memory-levels')">
@@ -405,6 +405,10 @@
   <div class="side">
     <h1>Memory 🎴🎴</h1>
     <div id="status">Choose a level!</div>
+  <div class="row">
+    <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
+    <button class="btn blue" onclick="toggleFullscreen()">⛶</button>
+  </div>
   </div>
   <div class="levels">
     <button class="lvl-btn" onclick="startMemory(1)">
@@ -420,9 +424,6 @@
       <span class="lvl-emoji">🏅</span><span class="lvl-name">Level 4</span><span class="lvl-desc">10 pairs</span>
     </button>
   </div>
-  <div class="row">
-    <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
-  </div>
 </div>
 
 <!-- ============ WYBÓR POZIOMU BINGO ============ -->
@@ -430,6 +431,10 @@
   <div class="side">
     <h1>Bingo 🎯</h1>
     <div id="status">Choose a level!</div>
+  <div class="row">
+    <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
+    <button class="btn blue" onclick="toggleFullscreen()">⛶</button>
+  </div>
   </div>
   <div class="levels">
     <button class="lvl-btn" onclick="startBingo(1)">
@@ -444,9 +449,6 @@
     <button class="lvl-btn" onclick="startBingo(4)">
       <span class="lvl-emoji">🏅</span><span class="lvl-name">Level 4</span><span class="lvl-desc">5 × 5</span>
     </button>
-  </div>
-  <div class="row">
-    <button class="btn blue" onclick="showScreen('home')">🏠 Home</button>
   </div>
 </div>
 
@@ -676,7 +678,6 @@ function newGame() {
     .map((c, i) => ({ ...c, id: i }))
     .sort(() => Math.random() - 0.5);
 
-  const rows = memPairs / 2;
   board.style.gridTemplateColumns = `repeat(${sizes.cols}, ${sizes.card})`;
   board.style.gap = sizes.gap;
   board.style.gap = gapSize;
@@ -763,6 +764,7 @@ function newBingo() {
 
   bingoBoard.innerHTML = "";
   bingoBoard.style.gridTemplateColumns = "repeat(" + bingoSize + ", 1fr)";
+  bingoBoard.style.gridTemplateRows = "repeat(" + bingoSize + ", 1fr)";
   bingoCards.forEach(c => {
     const b = document.createElement("button");
     b.className = "card bcard";
